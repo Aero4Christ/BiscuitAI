@@ -1,0 +1,25 @@
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Generated macOS application bundles and build output
+Build/
+DerivedData/
+
+# macOS/editor metadata
+.DS_Store
+*.xcuserstate
+.idea/
+.vscode/
+
+# Local secrets and signing material
+.env
+.env.*
+*.p12
+*.mobileprovision
+*.cer
+*.key
+
+# Temporary local reports
+coverage/
+*.log
