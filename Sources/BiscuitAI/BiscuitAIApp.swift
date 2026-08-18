@@ -845,30 +845,30 @@ private struct BiscuitTheme {
         switch appearance {
         case .warmLight:
             return BiscuitTheme(
-                background: Color(hex: 0xE4A15C),
+                background: Color(hex: 0xF7EFE5),
                 sidebar: Color(hex: 0x302C2A),
                 sidebarText: Color(hex: 0xF5EEE5),
                 sidebarButtonText: Color(hex: 0x3A2114),
                 sidebarSelection: Color.white.opacity(0.12),
                 sidebarCard: Color.white.opacity(0.09),
                 textPrimary: Color(hex: 0x372D29),
-                textSecondary: Color(hex: 0x65422D),
-                accent: Color(hex: 0xC76520),
-                accentSoft: Color(hex: 0xF4C27F),
+                textSecondary: Color(hex: 0x725E4F),
+                accent: Color(hex: 0xD47D2C),
+                accentSoft: Color(hex: 0xF7DEC0),
                 success: Color(hex: 0x4B9B72),
-                warning: Color(hex: 0xA85120),
-                card: Color(hex: 0xF4C98F).opacity(0.94),
-                cardBorder: Color(hex: 0xD18A48),
-                controlFill: Color(hex: 0xFFE1B3).opacity(0.96),
-                assistantBubble: Color(hex: 0xF9D8A7).opacity(0.98),
-                userBubble: LinearGradient(colors: [Color(hex: 0xC76520), Color(hex: 0xA8491E)], startPoint: .topLeading, endPoint: .bottomTrailing),
-                composerBackground: Color(hex: 0xD88A47).opacity(0.9),
-                disabled: Color(hex: 0xA87852),
-                separator: Color(hex: 0xC47B3B),
-                heroGlow: LinearGradient(colors: [Color(hex: 0xF4C27F), Color(hex: 0xD97932)], startPoint: .topLeading, endPoint: .bottomTrailing),
-                ambientGold: Color(hex: 0xF6C56F).opacity(0.2),
-                ambientBlue: Color(hex: 0x70C4D3).opacity(0.08),
-                ambientRose: Color(hex: 0xD17C53).opacity(0.12)
+                warning: Color(hex: 0xA85D24),
+                card: Color(hex: 0xFFF9F0).opacity(0.96),
+                cardBorder: Color(hex: 0xE6D1B9),
+                controlFill: Color(hex: 0xFFFDF8).opacity(0.98),
+                assistantBubble: Color(hex: 0xFFF5E7).opacity(0.98),
+                userBubble: LinearGradient(colors: [Color(hex: 0xD47D2C), Color(hex: 0xBC6124)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                composerBackground: Color(hex: 0xF2E3D2).opacity(0.9),
+                disabled: Color(hex: 0xB9A18B),
+                separator: Color(hex: 0xE2CDB5),
+                heroGlow: LinearGradient(colors: [Color(hex: 0xF4E3D0), Color(hex: 0xFFF9F0)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                ambientGold: Color(hex: 0xE6A15A).opacity(0.08),
+                ambientBlue: Color(hex: 0x70C4D3).opacity(0.05),
+                ambientRose: Color(hex: 0xD17C53).opacity(0.04)
             )
         case .dark:
             return BiscuitTheme(
