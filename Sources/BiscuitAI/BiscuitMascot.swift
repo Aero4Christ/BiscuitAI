@@ -43,9 +43,9 @@ struct BiscuitMascot: View {
             }
         }
         .frame(width: size, height: size)
-        .clipShape(RoundedRectangle(cornerRadius: size * 0.22, style: .continuous))
+        .clipShape(Circle())
         .overlay {
-            RoundedRectangle(cornerRadius: size * 0.22, style: .continuous)
+            Circle()
                 .stroke(.white.opacity(0.62), lineWidth: max(1, size * 0.018))
         }
         .shadow(color: .black.opacity(0.18), radius: size * 0.08, y: size * 0.05)

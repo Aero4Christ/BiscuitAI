@@ -25,4 +25,11 @@ enum BiscuitResources {
         }
         return Image(name, bundle: .module)
     }
+
+    static var appIcon: Image {
+        if let image = NSImage(named: NSImage.applicationIconName) {
+            return Image(nsImage: image)
+        }
+        return image(named: "AppIcon")
+    }
 }

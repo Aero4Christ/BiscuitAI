@@ -86,7 +86,11 @@ private struct BiscuitSidebar: View {
             theme.sidebar
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 11) {
-                    BiscuitMascot(size: 44, mood: .welcoming)
+                    BiscuitResources.appIcon
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 44, height: 44)
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     VStack(alignment: .leading, spacing: 2) {
                         Text("BiscuitAI")
                             .font(.system(size: 20, weight: .black, design: .rounded))
@@ -254,14 +258,11 @@ private struct WelcomePane: View {
             VStack(spacing: 22) {
                 Spacer(minLength: 26)
                 ZStack {
-                    RoundedRectangle(cornerRadius: 36, style: .continuous)
-                        .fill(theme.heroGlow)
-                        .frame(width: 270, height: 270)
                     BiscuitResources.image(named: "BiscuitNewChatCircle")
                         .resizable()
-                        .scaledToFit()
-                        .frame(width: 242, height: 242)
-                        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                        .scaledToFill()
+                        .frame(width: 270, height: 270)
+                        .clipShape(Circle())
                         .shadow(color: .black.opacity(0.16), radius: 16, y: 8)
                 }
                 .overlay(alignment: .topTrailing) {
