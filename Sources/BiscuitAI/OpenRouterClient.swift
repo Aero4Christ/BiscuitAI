@@ -11,11 +11,13 @@ protocol OpenRouterServicing {
         maxTokens: Int,
         onToken: @escaping (String) -> Void
     ) async throws
+    func generateImage(apiKey: String, model: String, prompt: String) async throws -> GeneratedImage
 }
 
 struct OpenRouterClient: OpenRouterServicing {
     private static let chatURL = URL(string: "https://openrouter.ai/api/v1/chat/completions")!
     private static let modelsURL = URL(string: "https://openrouter.ai/api/v1/models")!
+    private static let imagesURL = URL(string: "https://openrouter.ai/api/v1/images")!
 
     func fetchModels(apiKey: String) async throws -> [ModelOption] {
         var request = URLRequest(url: Self.modelsURL)
@@ -89,6 +91,30 @@ struct OpenRouterClient: OpenRouterServicing {
                 }
             }
         }
+    }
+
+    func generateImage(apiKey: String, model: String, prompt: String) async throws -> GeneratedImage {
+        struct Request: Encodable {
+            let model: String
+            let prompt: String
+        }
+
+        var request = URLRequest(url: Self.imagesURL)
+        request.timeoutInterval = 180
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("BiscuitAI", forHTTPHeaderField: "X-OpenRouter-Title")
+        request.httpBody = try JSONEncoder().encode(Request(model: model, prompt: prompt))
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        try Self.validate(response: response, data: data)
+        let decoded = try JSONDecoder().decode(OpenRouterImageResponse.self, from: data)
+        guard let item = decoded.data.first,
+              let imageData = Data(base64Encoded: item.b64JSON) else {
+            throw OpenRouterError.requestFailed("OpenRouter returned no usable image data.")
+        }
+        return GeneratedImage(data: imageData, mimeType: item.mediaType ?? "image/png")
     }
 
     private static func validate(response: URLResponse, data: Data) throws {

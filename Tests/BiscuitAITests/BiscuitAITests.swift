@@ -61,4 +61,32 @@ final class BiscuitAITests: XCTestCase {
         XCTAssertEqual(numeric.error.code, "401")
         XCTAssertEqual(string.error.code, "server_error")
     }
+
+    func testGeneratedImageMessageRoundTrips() throws {
+        let imageData = Data([0, 1, 2, 3, 4])
+        let original = ChatMessage(
+            role: .assistant,
+            content: "Generated image",
+            imageData: imageData,
+            imageMimeType: "image/png"
+        )
+
+        let encoded = try JSONEncoder().encode(original)
+        let decoded = try JSONDecoder().decode(ChatMessage.self, from: encoded)
+
+        XCTAssertEqual(decoded, original)
+        XCTAssertEqual(decoded.imageData, imageData)
+        XCTAssertEqual(decoded.imageMimeType, "image/png")
+    }
+
+    func testImageResponseDecodesBase64Payload() throws {
+        let response = try JSONDecoder().decode(
+            OpenRouterImageResponse.self,
+            from: Data(#"{"data":[{"b64_json":"AAEC","media_type":"image/png"}]}"#.utf8)
+        )
+
+        XCTAssertEqual(response.data.count, 1)
+        XCTAssertEqual(Data(base64Encoded: response.data[0].b64JSON), Data([0, 1, 2]))
+        XCTAssertEqual(response.data[0].mediaType, "image/png")
+    }
 }

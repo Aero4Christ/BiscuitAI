@@ -1,4 +1,6 @@
+import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 @main
 struct BiscuitAIApp: App {
@@ -28,6 +30,7 @@ struct BiscuitAIContentView: View {
     @EnvironmentObject private var chat: ChatStore
     @State private var showingSettings = false
     @State private var draft = ""
+    @State private var isImageMode = false
 
     private var theme: BiscuitTheme { BiscuitTheme.make(settings.appearance) }
 
@@ -49,6 +52,7 @@ struct BiscuitAIContentView: View {
                     ChatComposer(
                         draft: $draft,
                         isSending: chat.isReplying,
+                        isImageMode: $isImageMode,
                         theme: theme,
                         onSend: sendDraft,
                         onCancel: chat.cancelReply
@@ -71,7 +75,11 @@ struct BiscuitAIContentView: View {
     private func sendDraft() {
         let outbound = draft
         draft = ""
-        chat.send(outbound, settings: settings)
+        if isImageMode {
+            chat.generateImage(outbound, settings: settings)
+        } else {
+            chat.send(outbound, settings: settings)
+        }
     }
 }
 
@@ -392,7 +400,23 @@ private struct ChatBubble: View {
             }
 
             VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 6) {
-                if message.role == .assistant && message.content.isEmpty && isReplying {
+                if let imageData = message.imageData, let image = NSImage(data: imageData) {
+                    Image(nsImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: 520, maxHeight: 520)
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .overlay { RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(theme.cardBorder, lineWidth: 1) }
+                    Button {
+                        saveImage(data: imageData, mimeType: message.imageMimeType)
+                    } label: {
+                        Label("Save image", systemImage: "square.and.arrow.down")
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .foregroundStyle(theme.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.leading, 4)
+                } else if message.role == .assistant && message.content.isEmpty && isReplying {
                     TypingBubble(theme: theme)
                 } else if message.role == .assistant && message.content.isEmpty {
                     Text(responseLabel)
@@ -473,6 +497,16 @@ private struct ChatBubble: View {
             return message.content
         }
     }
+
+    private func saveImage(data: Data, mimeType: String?) {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "BiscuitAI-image.png"
+        panel.allowedContentTypes = [.png, .jpeg]
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            try? data.write(to: url, options: .atomic)
+        }
+    }
 }
 
 private struct TypingBubble: View {
@@ -499,6 +533,7 @@ private struct TypingBubble: View {
 private struct ChatComposer: View {
     @Binding var draft: String
     let isSending: Bool
+    @Binding var isImageMode: Bool
     let theme: BiscuitTheme
     let onSend: () -> Void
     let onCancel: () -> Void
@@ -529,6 +564,19 @@ private struct ChatComposer: View {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .stroke(isFocused ? theme.accent : theme.cardBorder, lineWidth: isFocused ? 2 : 1)
             }
+
+            Button { isImageMode.toggle() } label: {
+                Image(systemName: isImageMode ? "photo.fill" : "photo")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(isImageMode ? .white : theme.textSecondary)
+                    .frame(width: 38, height: 38)
+                    .background(isImageMode ? theme.accent : theme.controlFill, in: Circle())
+                    .overlay { Circle().stroke(theme.cardBorder, lineWidth: isImageMode ? 0 : 1) }
+            }
+            .buttonStyle(.plain)
+            .disabled(isSending)
+            .help(isImageMode ? "Image generation mode enabled" : "Generate an image")
+            .accessibilityLabel(isImageMode ? "Disable image generation" : "Enable image generation")
 
             Button(action: isSending ? onCancel : onSend) {
                 Image(systemName: isSending ? "stop.fill" : "arrow.up")
@@ -700,6 +748,13 @@ private struct SettingsView: View {
                             Text("The selected model uses the credits attached to the active OpenRouter key: \(settings.activeProfileName). Refresh to load the live catalog, then search or paste any supported model ID.")
                                 .font(.system(size: 11, weight: .medium))
                                 .foregroundStyle(theme.textSecondary)
+                            Text("Image model")
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .foregroundStyle(theme.textSecondary)
+                            TextField("Image model ID", text: $settings.imageModel)
+                                .textFieldStyle(.roundedBorder)
+                                .font(.system(size: 12, design: .monospaced))
+                                .help("OpenRouter image model used by image generation mode")
 
                             TextField("Search current models", text: $modelSearch)
                                 .textFieldStyle(.roundedBorder)

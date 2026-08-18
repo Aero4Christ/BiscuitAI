@@ -13,6 +13,9 @@ final class SettingsStore: ObservableObject {
     @Published var selectedModel: String {
         didSet { updateSelectedModel() }
     }
+    @Published var imageModel: String {
+        didSet { UserDefaults.standard.set(imageModel, forKey: Keys.imageModel) }
+    }
     @Published var appearance: AppAppearance {
         didSet { UserDefaults.standard.set(appearance.rawValue, forKey: Keys.appearance) }
     }
@@ -35,6 +38,7 @@ final class SettingsStore: ObservableObject {
         static let appearance = "biscuit-appearance-v2"
         static let systemPrompt = "biscuit-system-prompt"
         static let temperature = "biscuit-temperature"
+        static let imageModel = "biscuit-image-model"
         static let legacyAPIKeyAccount = "openrouter-api-key"
     }
 
@@ -47,6 +51,7 @@ final class SettingsStore: ObservableObject {
         let storedActiveID = defaults.string(forKey: Keys.activeProfileID).flatMap(UUID.init(uuidString:))
         self.activeProfileID = initialProfiles.contains(where: { $0.id == storedActiveID }) ? storedActiveID : initialProfiles.first?.id
         self.selectedModel = initialProfiles.first?.selectedModel ?? ModelOption.starterModels[0].id
+        self.imageModel = defaults.string(forKey: Keys.imageModel) ?? "openai/gpt-5-image"
         self.appearance = AppAppearance(rawValue: defaults.string(forKey: Keys.appearance) ?? "") ?? .warmLight
         self.systemPrompt = defaults.string(forKey: Keys.systemPrompt) ?? "You are BiscuitAI: warm, capable, clear, and encouraging. Use a light baking pun only when it genuinely fits; never let a pun obscure the answer."
         self.temperature = (defaults.object(forKey: Keys.temperature) as? Double) ?? 0.7

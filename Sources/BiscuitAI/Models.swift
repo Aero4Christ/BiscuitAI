@@ -41,12 +41,16 @@ struct ChatMessage: Identifiable, Codable, Hashable {
     let id: UUID
     let role: ChatRole
     var content: String
+    var imageData: Data?
+    var imageMimeType: String?
     let createdAt: Date
 
-    init(id: UUID = UUID(), role: ChatRole, content: String, createdAt: Date = .now) {
+    init(id: UUID = UUID(), role: ChatRole, content: String, imageData: Data? = nil, imageMimeType: String? = nil, createdAt: Date = .now) {
         self.id = id
         self.role = role
         self.content = content
+        self.imageData = imageData
+        self.imageMimeType = imageMimeType
         self.createdAt = createdAt
     }
 }
@@ -73,6 +77,7 @@ struct ModelOption: Identifiable, Codable, Hashable {
     let description: String?
     let contextLength: Int?
     let inputModalities: [String]
+    let outputModalities: [String]
     let isFree: Bool
 
     init(
@@ -81,6 +86,7 @@ struct ModelOption: Identifiable, Codable, Hashable {
         description: String? = nil,
         contextLength: Int? = nil,
         inputModalities: [String] = ["text"],
+        outputModalities: [String] = ["text"],
         isFree: Bool = false
     ) {
         self.id = id
@@ -88,6 +94,7 @@ struct ModelOption: Identifiable, Codable, Hashable {
         self.description = description
         self.contextLength = contextLength
         self.inputModalities = inputModalities
+        self.outputModalities = outputModalities
         self.isFree = isFree
     }
 
@@ -104,6 +111,25 @@ struct ModelOption: Identifiable, Codable, Hashable {
 struct OpenRouterRequestMessage: Codable {
     let role: String
     let content: String
+}
+
+struct GeneratedImage {
+    let data: Data
+    let mimeType: String
+}
+
+struct OpenRouterImageResponse: Decodable {
+    struct Item: Decodable {
+        let b64JSON: String
+        let mediaType: String?
+
+        enum CodingKeys: String, CodingKey {
+            case b64JSON = "b64_json"
+            case mediaType = "media_type"
+        }
+    }
+
+    let data: [Item]
 }
 
 struct OpenRouterChatRequest: Codable {
@@ -169,9 +195,11 @@ struct ModelsResponse: Decodable {
     struct RemoteModel: Decodable {
         struct Architecture: Decodable {
             let inputModalities: [String]?
+            let outputModalities: [String]?
 
             enum CodingKeys: String, CodingKey {
                 case inputModalities = "input_modalities"
+                case outputModalities = "output_modalities"
             }
         }
 
@@ -201,6 +229,7 @@ struct ModelsResponse: Decodable {
                 description: description,
                 contextLength: contextLength,
                 inputModalities: architecture?.inputModalities ?? ["text"],
+                outputModalities: architecture?.outputModalities ?? ["text"],
                 isFree: promptIsFree && completionIsFree
             )
         }

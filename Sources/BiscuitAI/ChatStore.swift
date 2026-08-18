@@ -98,6 +98,42 @@ final class ChatStore: ObservableObject {
         beginReply(in: conversationID, settings: settings)
     }
 
+    func generateImage(_ rawPrompt: String, settings: SettingsStore) {
+        let prompt = rawPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !prompt.isEmpty, !isReplying else { return }
+        guard settings.hasAPIKey else {
+            notice = .init(title: "Let’s get set up", message: "Add an OpenRouter API key in Settings before generating an image.")
+            return
+        }
+
+        let conversationID = ensureConversation(using: prompt)
+        append(ChatMessage(role: .user, content: prompt), to: conversationID)
+        append(ChatMessage(role: .assistant, content: ""), to: conversationID)
+        isReplying = true
+        activeConversationID = conversationID
+        replyStates[conversationID] = .streaming
+        let apiKey = settings.apiKey
+        let model = settings.imageModel
+
+        replyTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                let image = try await self.client.generateImage(apiKey: apiKey, model: model, prompt: prompt)
+                try Task.checkCancellation()
+                self.finishImageReply(image, in: conversationID)
+            } catch is CancellationError {
+                // Cancellation is represented by the explicit cancelled state below.
+            } catch {
+                if !Task.isCancelled { self.failReply(error, in: conversationID) }
+            }
+            if self.activeConversationID == conversationID {
+                self.isReplying = false
+                self.activeConversationID = nil
+                self.replyTask = nil
+            }
+        }
+    }
+
     func retry(conversationID: UUID? = nil, settings: SettingsStore) {
         guard !isReplying,
               let conversationID = conversationID ?? selectedConversationID,
@@ -240,6 +276,16 @@ final class ChatStore: ObservableObject {
         if conversations[index].messages[messageIndex].content.isEmpty {
             conversations[index].messages[messageIndex].content = "The oven went quiet before a reply arrived. Please try again."
         }
+        replyStates[conversationID] = .idle
+        save()
+    }
+
+    private func finishImageReply(_ image: GeneratedImage, in conversationID: UUID) {
+        guard let index = conversations.firstIndex(where: { $0.id == conversationID }),
+              let messageIndex = conversations[index].messages.indices.last else { return }
+        conversations[index].messages[messageIndex].imageData = image.data
+        conversations[index].messages[messageIndex].imageMimeType = image.mimeType
+        conversations[index].messages[messageIndex].content = "Generated image"
         replyStates[conversationID] = .idle
         save()
     }
