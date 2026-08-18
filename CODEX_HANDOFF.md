@@ -48,12 +48,12 @@ Sources/BiscuitAI/Resources/BiscuitMascot.png
 The first copy is the project-level source copy. The second copy is processed as a Swift Package resource and is the copy loaded at runtime through:
 
 ```swift
-Image("BiscuitMascot", bundle: BiscuitResources.bundle)
+BiscuitResources.image(named: "BiscuitMascot")
 ```
 
 The old Recraft-generated SVG, old generated PNG, and `RecraftBiscuitMark.swift` wrapper were removed from the connected Mac project. Do not reintroduce the former mascot or generate a replacement character. If additional visual assets are needed, use the supplied mascot as the exact reference and preserve its face, sunglasses, jacket, colors, and proportions.
 
-`BiscuitMascot.swift` contains the reusable animated wrapper. `BiscuitResources.swift` resolves the SwiftPM resource bundle correctly in both development and packaged `.app` builds. The wrapper uses the supplied image with `scaledToFill`, clips it into a rounded square, adds a subtle white edge and shadow, and supports three presentation moods:
+`BiscuitMascot.swift` contains the reusable animated wrapper. `BiscuitResources.swift` resolves packaged PNGs by their verified app-bundle path and falls back to `Bundle.module` during development/tests. The wrapper uses the supplied image with `scaledToFill`, clips it into a rounded square, adds a subtle white edge and shadow, and supports three presentation moods:
 
 | Mood | Use |
 | --- | --- |

@@ -16,7 +16,7 @@ struct BiscuitMascot: View {
 
     var body: some View {
         ZStack {
-            Image(assetName, bundle: BiscuitResources.bundle)
+            BiscuitResources.image(named: assetName)
                 .resizable()
                 .scaledToFill()
                 .frame(width: size, height: size)

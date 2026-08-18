@@ -1,16 +1,28 @@
+import AppKit
 import Foundation
+import SwiftUI
 
 enum BiscuitResources {
-    static let bundle: Bundle = {
-        let mainResourcesBundle = Bundle.main.bundleURL
+    private static let resourceBundleURL: URL = {
+        let packagedURL = Bundle.main.bundleURL
             .appendingPathComponent("Contents", isDirectory: true)
             .appendingPathComponent("Resources", isDirectory: true)
             .appendingPathComponent("BiscuitAI_BiscuitAI.bundle", isDirectory: true)
 
-        if let bundle = Bundle(url: mainResourcesBundle) {
-            return bundle
+        if FileManager.default.fileExists(atPath: packagedURL.path) {
+            return packagedURL
         }
 
-        return .module
+        return Bundle.module.bundleURL
     }()
+
+    static let bundle: Bundle = Bundle(url: resourceBundleURL) ?? .module
+
+    static func image(named name: String) -> Image {
+        let imageURL = resourceBundleURL.appendingPathComponent("\(name).png")
+        if let image = NSImage(contentsOf: imageURL) {
+            return Image(nsImage: image)
+        }
+        return Image(name, bundle: .module)
+    }
 }

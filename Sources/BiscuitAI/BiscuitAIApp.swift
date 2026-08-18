@@ -257,7 +257,7 @@ private struct WelcomePane: View {
                     RoundedRectangle(cornerRadius: 36, style: .continuous)
                         .fill(theme.heroGlow)
                         .frame(width: 270, height: 270)
-                    Image("BiscuitNewChatCircle", bundle: BiscuitResources.bundle)
+                    BiscuitResources.image(named: "BiscuitNewChatCircle")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 242, height: 242)
