@@ -11,7 +11,7 @@ enum AppAppearance: String, Codable, CaseIterable, Identifiable {
     case dark
 
     var id: String { rawValue }
-    var title: String { self == .warmLight ? "Warm light" : "Dark" }
+    var title: String { self == .warmLight ? "Light" : "Dark" }
     var symbolName: String { self == .warmLight ? "sun.max.fill" : "moon.stars.fill" }
 }
 
