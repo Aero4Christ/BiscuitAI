@@ -9,13 +9,14 @@ enum BiscuitMood {
 struct BiscuitMascot: View {
     let size: CGFloat
     var mood: BiscuitMood = .welcoming
+    var assetName = "BiscuitMascot"
 
     @State private var isBreathing = false
     @State private var isTilting = false
 
     var body: some View {
         ZStack {
-            Image("BiscuitMascot", bundle: .module)
+            Image(assetName, bundle: BiscuitResources.bundle)
                 .resizable()
                 .scaledToFill()
                 .frame(width: size, height: size)

@@ -48,12 +48,12 @@ Sources/BiscuitAI/Resources/BiscuitMascot.png
 The first copy is the project-level source copy. The second copy is processed as a Swift Package resource and is the copy loaded at runtime through:
 
 ```swift
-Image("BiscuitMascot", bundle: .module)
+Image("BiscuitMascot", bundle: BiscuitResources.bundle)
 ```
 
 The old Recraft-generated SVG, old generated PNG, and `RecraftBiscuitMark.swift` wrapper were removed from the connected Mac project. Do not reintroduce the former mascot or generate a replacement character. If additional visual assets are needed, use the supplied mascot as the exact reference and preserve its face, sunglasses, jacket, colors, and proportions.
 
-`BiscuitMascot.swift` contains the reusable animated wrapper. It uses the supplied image with `scaledToFill`, clips it into a rounded square, adds a subtle white edge and shadow, and supports three presentation moods:
+`BiscuitMascot.swift` contains the reusable animated wrapper. `BiscuitResources.swift` resolves the SwiftPM resource bundle correctly in both development and packaged `.app` builds. The wrapper uses the supplied image with `scaledToFill`, clips it into a rounded square, adds a subtle white edge and shadow, and supports three presentation moods:
 
 | Mood | Use |
 | --- | --- |
@@ -63,7 +63,7 @@ The old Recraft-generated SVG, old generated PNG, and `RecraftBiscuitMark.swift`
 
 The breathing and tilt animations use approximately 1.2-second easing cycles. Keep future mascot animation subtle because the supplied artwork already contains a strong pose and visual identity.
 
-The large new-chat hero uses the supplied image directly with `scaledToFit`, so the entire character and speech bubble remain visible. Small avatars use the reusable `BiscuitMascot` wrapper and intentionally crop the source to keep the face and upper body legible.
+The large new-chat hero uses `BiscuitNewChatCircle.png`. Active assistant/chat avatars use `BiscuitChatBubble.png`, while the sidebar and settings use the supplied full mascot artwork. The hero uses `scaledToFit`, so the complete circular artwork remains visible.
 
 ## 4. Source tree
 
@@ -97,7 +97,7 @@ Tests/
     └── BiscuitAITests.swift
 ```
 
-`Package.swift` defines an executable Swift package targeting macOS. The executable target processes the local `Resources` directory under `Sources/BiscuitAI`, which is why the mascot is available through `Bundle.module`.
+`Package.swift` defines an executable Swift package targeting macOS. The executable target processes the local `Resources` directory under `Sources/BiscuitAI`. `BiscuitResources.bundle` resolves that resource bundle from the packaged app’s `Contents/Resources` directory and falls back to `Bundle.module` during development/tests.
 
 `BiscuitAIApp.swift` contains the main SwiftUI application, split view, sidebar, header, new-chat welcome screen, conversation view, chat bubbles, composer, settings sheet, appearance palette, and reusable button/card/background styling.
 
@@ -210,8 +210,9 @@ open "Build/BiscuitAI.app"
 1. Builds the release executable.
 2. Creates `Build/BiscuitAI.app/Contents/MacOS` and `Contents/Resources`.
 3. Copies the executable and `Info.plist`.
-4. Copies `BiscuitAI_BiscuitAI.bundle` so the mascot resource is available at runtime.
-5. Runs `xattr -cr` to remove Finder metadata that can cause strict code-signature validation failures.
+4. Copies `BiscuitAI_BiscuitAI.bundle` into `Contents/Resources` so the runtime resolver can load all image assets.
+5. Generates `AppIcon.icns` from `Design Assets/AppIcon.png`.
+6. Runs recursive extended-attribute cleanup to remove Finder metadata that can cause strict code-signature validation failures.
 6. Applies an ad-hoc local signature with `codesign --force --deep --sign -`.
 
 This is a local-development app. It is not notarized or distributed through the Mac App Store. If Codex later prepares a distributable build, it will need a proper Developer ID signing and notarization workflow.

@@ -30,8 +30,25 @@ if [ -d "$RESOURCE_BUNDLE" ]; then
   cp -R "$RESOURCE_BUNDLE" "$APP_DIR/Contents/Resources/"
 fi
 
+test -f "$APP_DIR/Contents/Resources/BiscuitAI_BiscuitAI.bundle/BiscuitMascot.png"
+test -f "$APP_DIR/Contents/Resources/BiscuitAI_BiscuitAI.bundle/BiscuitNewChatCircle.png"
+test -f "$APP_DIR/Contents/Resources/BiscuitAI_BiscuitAI.bundle/BiscuitChatBubble.png"
+
+ICONSET_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/biscuitai-icon.XXXXXX")"
+ICONSET_DIR="${ICONSET_ROOT}.iconset"
+mv "$ICONSET_ROOT" "$ICONSET_DIR"
+trap 'rm -rf "$ICONSET_DIR"' EXIT
+for iconSize in 16 32 128 256 512; do
+  sips -z "$iconSize" "$iconSize" "$ROOT_DIR/Design Assets/AppIcon.png" \
+    --out "$ICONSET_DIR/icon_${iconSize}x${iconSize}.png" >/dev/null
+  doubleSize=$((iconSize * 2))
+  sips -z "$doubleSize" "$doubleSize" "$ROOT_DIR/Design Assets/AppIcon.png" \
+    --out "$ICONSET_DIR/icon_${iconSize}x${iconSize}@2x.png" >/dev/null
+done
+iconutil -c icns "$ICONSET_DIR" -o "$APP_DIR/Contents/Resources/AppIcon.icns"
+
 # Clear Finder metadata before signing so the local bundle verifies cleanly.
-xattr -cr "$APP_DIR"
+/usr/bin/xattr -rc "$APP_DIR"
 
 # An ad-hoc signature allows this locally built app to launch on this Mac.
 codesign --force --deep --sign - "$APP_DIR"

@@ -257,7 +257,7 @@ private struct WelcomePane: View {
                     RoundedRectangle(cornerRadius: 36, style: .continuous)
                         .fill(theme.heroGlow)
                         .frame(width: 270, height: 270)
-                    Image("BiscuitMascot", bundle: .module)
+                    Image("BiscuitNewChatCircle", bundle: BiscuitResources.bundle)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 242, height: 242)
@@ -381,7 +381,11 @@ private struct ChatBubble: View {
     var body: some View {
         HStack(alignment: .bottom, spacing: 10) {
             if message.role == .assistant {
-                BiscuitMascot(size: 38, mood: isReplying && message.content.isEmpty ? .thinking : .welcoming)
+                BiscuitMascot(
+                    size: 38,
+                    mood: isReplying && message.content.isEmpty ? .thinking : .welcoming,
+                    assetName: "BiscuitChatBubble"
+                )
             } else {
                 Spacer(minLength: 62)
             }

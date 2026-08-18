@@ -64,9 +64,13 @@ swift build -c release
 | `Sources/BiscuitAI/RequestContextBuilder.swift` | Model-aware bounded request context construction. |
 | `Sources/BiscuitAI/Models.swift` | Profile, theme, model catalog, and API response definitions. |
 | `Sources/BiscuitAI/BiscuitMascot.swift` | Animated presentation of the user-supplied mascot. |
+| `Sources/BiscuitAI/BiscuitResources.swift` | Resolves Swift Package resources in development and packaged app bundles. |
 | `Tests/BiscuitAITests/BiscuitAITests.swift` | Persistence, context, and OpenRouter decoding tests. |
 | `Resources/BiscuitMascot.png` | Source copy of the user-supplied mascot image. |
 | `Sources/BiscuitAI/Resources/BiscuitMascot.png` | Mascot copy bundled with the Swift package. |
+| `Sources/BiscuitAI/Resources/BiscuitNewChatCircle.png` | New-chat hero artwork. |
+| `Sources/BiscuitAI/Resources/BiscuitChatBubble.png` | Active assistant/chat artwork. |
+| `Design Assets/AppIcon.png` | Source artwork used to generate the packaged macOS app icon. |
 | `Scripts/build_app.sh` | Repeatable macOS build and packaging script. |
 
 ## OpenRouter connection
